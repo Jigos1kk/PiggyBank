@@ -1,5 +1,6 @@
 const db = require('../models');
 const UserModel = db.user;
+const AuthController = require('./AuthController')
 
 class UserController {
     constructor() {}
@@ -12,17 +13,21 @@ class UserController {
             return res.status(400).json({ error: 'Нет значений для создания' });
         }
 
-        const check = await UserModel.findOne({
-            where: {
-                tg_id: data.telegram_id
-            } 
-        })
-
-        if(check){
-           return res.json({ message: "Вы уже зарегестрированы" });
-        }
-
         try {
+            const user = await UserModel.findOne({
+                where: {
+                    tg_id: data.telegram_id
+                }
+            });
+
+            if (user) {
+                const token = await AuthController.token_generate(user);
+                return res.status(200).json({
+                    message: "Вы уже зарегистрированы",
+                    token
+                });
+            }
+
             const newUser = await UserModel.create({
                 tg_id: data.telegram_id,
                 tg_username: data.username,
@@ -31,10 +36,22 @@ class UserController {
                 language_code: data.language_code,
             });
 
-            return res.json({ message: "Вы успешно зарегестрированы" });
+            const token = await AuthController.token_generate(newUser);
+
+            return res.status(200).json({
+                message: "Вы успешно зарегистрированы",
+                token
+            });
         } catch (err) {
-            return res.status(500).json({ error: 'Ошибка при создании пользователя', details: err.message });
+            return res.status(500).json({
+                error: 'Ошибка при создании пользователя',
+                details: err.message
+            });
         }
+    }
+
+    async show(req, res) {
+
     }
 }
 

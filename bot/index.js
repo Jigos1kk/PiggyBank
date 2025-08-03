@@ -1,45 +1,41 @@
 require('dotenv').config();
 
-const { Telegraf } = require('telegraf');
-const axios = require('axios');
+const { Telegraf, session } = require('telegraf');
+const BotController = require('./controllers/BotController');
+const SessionMiddleware = require('./middleware/SessionMiddleware');
+
 
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-const API_URL = process.env.API_URL;
+
+if (!BOT_TOKEN) {
+  console.error('TELEGRAM_BOT_TOKEN не найден в переменных окружения');
+  process.exit(1);
+}
 
 const bot = new Telegraf(BOT_TOKEN);
 
-bot.start(async (ctx) => {
-  const user = ctx.from;
-  try {
-    // Отправляем пользователя на API с таймаутом 5 секунд
-    const response = await axios.post(
-      `${API_URL}/user/add`,
-      {
-        telegram_id: user.id,
-        username: user.username,
-        first_name: user.first_name,
-        last_name: user.last_name,
-        language_code: user.language_code,
-      }
-    )
-    console.log(response);
-    await ctx.reply(response.data.message);
-  } catch (error) {
-    // Выводим больше информации для диагностики
-    if (error.response) {
-      // Сервер ответил с ошибкой
-      console.error('API response error:', error.response.status, error.response.data);
-    } else if (error.request) {
-      // Запрос был отправлен, но ответа не было
-      console.error('No response received from API:', error.request);
-    } else {
-      // Ошибка при настройке запроса
-      console.error('Error setting up request:', error.message);
-    }
-    await ctx.reply('Произошла ошибка при регистрации. Попробуйте позже.');
-  }
+bot.use(session(SessionMiddleware.sessionConfig));
+
+bot.start(BotController.handleStart);
+bot.help(BotController.handleHelp);
+
+bot.on('text', BotController.handleText);
+
+bot.catch((err, ctx) => {
+  console.error('Ошибка в боте:', err);
+  ctx.reply('Произошла внутренняя ошибка. Попробуйте позже.');
 });
 
 bot.launch()
-  .then(() => console.log('Бот запущен'))
-  .catch((err) => console.error('Ошибка запуска бота:', err));
+  .then(() => {
+    console.log('🚀 Бот успешно запущен');
+    console.log(`📱 Bot username: @${bot.botInfo.username}`);
+  })
+  .catch((err) => {
+    console.error('❌ Ошибка запуска бота:', err);
+    process.exit(1);
+  });
+
+// Graceful shutdown
+process.once('SIGINT', () => bot.stop('SIGINT'));
+process.once('SIGTERM', () => bot.stop('SIGTERM'));
