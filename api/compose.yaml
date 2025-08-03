@@ -1,11 +1,18 @@
 services:
-  app:
+  api:
     build: .
     container_name: piggybank_api
     ports:
       - "8090:8090"
     volumes:
-      - ./:/var/www/html
+      - ./:/usr/src/app
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_HOST: db
+      MYSQL_PORT: ${MYSQL_PORT}
     depends_on:
       - db
 

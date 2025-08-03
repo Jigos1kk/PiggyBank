@@ -1,6 +1,8 @@
 # Используем официальный Node.js образ
 FROM node:20
 
+WORKDIR /usr/src/app
+
 # Копируем package.json и package-lock.json (если есть)
 COPY package*.json ./
 
