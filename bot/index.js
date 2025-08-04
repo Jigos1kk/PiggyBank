@@ -2,7 +2,10 @@ require('dotenv').config();
 
 const { Telegraf, session } = require('telegraf');
 const BotController = require('./controllers/BotController');
+const ScoketController = require('./controllers/SocketController');
+
 const SessionMiddleware = require('./middleware/SessionMiddleware');
+const ClientMiddleware = require('./middleware/ClientMiddleware');
 
 
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
@@ -11,6 +14,9 @@ if (!BOT_TOKEN) {
   console.error('TELEGRAM_BOT_TOKEN не найден в переменных окружения');
   process.exit(1);
 }
+
+ScoketController.connect();
+ScoketController.joinRoom('my-room');
 
 const bot = new Telegraf(BOT_TOKEN);
 

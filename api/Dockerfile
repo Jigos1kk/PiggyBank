@@ -13,7 +13,7 @@ RUN npm install
 COPY . .
 
 # Открываем порт 8090
-EXPOSE 8090
+EXPOSE 8090 5000
 
 # Запускаем приложение
 CMD ["npm", "run", "app"]
