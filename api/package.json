@@ -7,12 +7,15 @@
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "api": "nodemon index.js"
   },
   "dependencies": {
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
-    "nodemon": "^3.1.10",
+    "mysql2": "^3.14.3",
     "sequelize": "^6.37.7"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
   }
 }
