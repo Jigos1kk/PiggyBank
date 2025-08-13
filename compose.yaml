@@ -6,7 +6,7 @@ services:
     volumes:
       - ./api:/usr/app
     ports:
-      - '3000:3000'
+      - '9000:3000'
     environment:
       - DB_HOST=db
       - DB_USER=${DB_USER}
@@ -14,6 +14,15 @@ services:
       - DB_NAME=${DB_NAME}
     depends_on:
       - db
+
+  client:
+    build:
+      context: ./client
+    container_name: client
+    volumes:
+      - ./client:/usr/app
+    ports:
+      - '8080:80'
     
 
   db:

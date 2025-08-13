@@ -3,6 +3,20 @@ require('dotenv').config()
 const express = require('express');
 const app = express();
 const routes = require('./routes')
+const cors = require('cors');
+
+app.use(cors({
+  origin: function(origin, callback) {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    } else {
+      return callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+}));
+
 
 app.use(express.json());
 app.use('/api', routes)
